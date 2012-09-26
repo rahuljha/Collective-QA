@@ -1,0 +1,1 @@
+cat $1 | grep -v "^$" | grep -v "top>" | grep -v "Description:" | awk '{if ( $0 ~ /<num> Number/ ) {printf $3" ::: "} else {print $0}}' | awk '{if ($0 ~ /:::/) {printf "\n"$0} else {print " "$0}}' | grep -v "^$" 
