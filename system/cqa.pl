@@ -22,9 +22,10 @@ print "\nHi $uname! You have attempted $acount questions with $ccount correct an
 $done = 0;
 my @qkeys = keys %questions;
 my %visited = ();
-my $system_response = "";
 
 while(!$done) {
+    my $system_response = "";
+    
     my $qidx = int(rand(@qkeys));
     while(exists $visited{$qidx}) {
 	$qidx = int(rand(@qkeys));
@@ -51,15 +52,17 @@ while(!$done) {
 	my $result = check_answer($qid, $current_answer);
 	if($result eq "false") {
 	    print "\nIncorrect. ";
+	    update_user_answers($qid, $uname, $current_answer, 0);
 	    my $user_answers = get_user_answers($qid);
 	    my $next_string = ($user_answers eq "") ? "\nThere are no other user responses at this time.\n" : "\n\nOther people have answered : \n".get_user_answers($qid)."\n"; 
 	    print $next_string;
 	    print "\nTry this question again? (y/n) : ";
 	    my $response = <STDIN>;
 	    chomp($response);
-	    while(!$response =~ m/^(y|n|quit)$/i) {
+
+	    while(!($response =~ m/^(y|n|quit)$/i)) {
 		print "\nPlease type y, n or quit : ";
-		my $response = <STDIN>;
+		$response = <STDIN>;
 		chomp($response);
 	    }
 
@@ -76,6 +79,7 @@ while(!$done) {
 	}
 
 	elsif($result eq "na") {
+	    update_user_answers($qid, $uname, $current_answer, 0);
 	    print "\nThanks for your answer. We currently don't have a correct answer for this in our system.";
 	    my $user_answers = get_user_answers($qid);
 	    my $next_string = ($user_answers eq "") ? "\n\nThere are no other user responses at this time." : "\n\nOther people have answered : \n".get_user_answers($qid); 
@@ -86,17 +90,18 @@ while(!$done) {
 	    $ccount++;
 	    print "\nCorrect!";
 	    $correct = 1;
+	    update_user_answers($qid, $uname, $current_answer, 1);
 	    last;
 	}
 	print "Enter the new answer here : ";
     }
 
-    update_user_answers($qid, $uname, $current_answer, $correct) unless($current_answer eq "skip" || $current_answer eq "quit");
+#    update_user_answers($qid, $uname, $current_answer, $correct) unless($current_answer eq "skip" || $current_answer eq "quit");
 
-    if($current_answer eq "skip" || $system_response eq "skip" || $system_response eq "n") {
-	print "\nSkipped. ";
+    if(($current_answer eq "skip") || ($system_response eq "skip") || ($system_response eq "n")) {
+	print "\nSkipped. " if ($current_answer eq "skip" || $system_response eq "skip");
 	if(exists $answers{$qid}) {
-	    print "Correct answers are: ";
+	    print "\nCorrect answers are: ";
 	    print_correct_answers($qid);
 	} 
     }

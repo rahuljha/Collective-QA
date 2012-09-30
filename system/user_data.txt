@@ -454,3 +454,72 @@
 903 rahuljha a disease 0
 1292 rahuljha 80 0
 1317 rahuljha killing of humans 1
+1158 rahuljha 21 0
+1158 rahuljha 23 0
+1209 rahuljha no idea 0
+982 rahuljha no idea 0
+965 rahuljha 58 0
+988 rahuljha Chicago 0
+1066 rahuljha sun and moon align 0
+1050 rahuljha no idea 0
+1166 rahuljha bone disease 0
+1224 rahuljha to modify 0
+926 rahuljha with no backbone 0
+926 rahuljha creatures with no backbone 0
+1342 rahuljha 15 sep 0
+1342 rahuljha march 17 1
+1001 rahuljha something 0
+1172 rahuljha no idea 0
+1316 rahuljha test 0
+1316 rahuljha Spirit of St. Louis 1
+1295 rahuljha titanium 0
+1123 rahuljha bell 1
+1192 rahuljha pressure 0
+1192 rahuljha atmosphreic pressure 0
+1158 rahuljha 23 0
+1158 rahuljha 17 0
+1387 rahuljha 1912 1
+1289 rahuljha metal casting 0
+1151 rahuljha kimono 0
+1002 rahuljha 1734 0
+1002 rahuljha 1641 0
+1067 rahuljha big explosion 1
+1303 radev a process for energy processing by a living being 0
+1052 radev Australia 1
+1296 radev June 17 0
+1031 radev Handel 0
+1098 radev 365 0
+1067 radev a star 0
+1392 radev Topaz 0
+1040 radev Marx 0
+1184 radev New York City 1
+989 radev Canada 1
+1001 radev hawk 0
+1309 radev electronic devices 0
+1071 radev 1808 0
+1092 radev etch a sketch 0
+1043 radev alkaloid found in tobacco 1
+1358 radev New York 0
+1274 radev Lee Harvey Oswald 1
+1123 radev Alexander Graham Bell 1
+958 radev Illinois 0
+1096 radev James S. Slinky' 1
+1340 radev India 0
+1154 radev Jackie Robinson 1
+1262 radev Cabaret in Paris 1
+1299 radev Minneapolis 0
+904 radev Paris 1
+1214 radev sugar-related disease 0
+1214 radev metabolic disease 0
+1119 rahuljha hydrocarbons 0
+1119 rahuljha polymers 1
+1361 rahuljha walmart 1
+1077 rahuljha encoding messages 0
+1021 rahuljha june 0
+1021 rahuljha summer 1
+922 rahuljha new york 0
+1329 rahuljha fear of heights 0
+1186 rahuljha 5 years 0
+1186 rahuljha 10 years 0
+1239 rahuljha raphael 0
+1239 rahuljha michelangelo 1
