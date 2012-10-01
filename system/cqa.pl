@@ -1,237 +1,197 @@
 #!/usr/bin/perl
 
-my $base_dir = "/data0/projects/collective_qa/system";
-my $qfile = $base_dir."/questions.txt";
-my $afile = $base_dir."/answers.txt";
-my $ufile = $base_dir."/user_data.txt";
+use strict;
+use Switch;
+use QA; 
+use User;
+use Rating;
 
-my %questions = ();
-my %answers = ();
-my %user_data = ();
+# define state variables
+my $state = 'begin';
 
-load_questions();
-load_answers();
-load_user_data();
+# QA subsystem
+my $qa = new QA();
+my $user = new User();
+my $rating = new Rating();
 
-my $uname = get_user_name();
-my $acount = `cat $ufile | grep $uname | wc -l`;
-my $ccount = `cat $ufile | grep $uname | grep ' 1\$' | wc -l`;
-chomp($acount);
-chomp($ccount);
-print "\nHi $uname! You have attempted $acount questions with $ccount correct answers. Starting a new round ...\n\nType 'skip' as answer to skip any question.\nType 'quit' to exit at any point of time.\n";
-$done = 0;
-my @qkeys = keys %questions;
-my %visited = ();
+# variables 
+my $uname = "";
+my $response = "";
 
-while(!$done) {
-    my $system_response = "";
-    
-    my $qidx = int(rand(@qkeys));
-    while(exists $visited{$qidx}) {
-	$qidx = int(rand(@qkeys));
-    }
-    $visited{$qidx} = 1;
 
-    my $qid = $qkeys[$qidx];
-    print "\n".$questions{$qid}." : ";
-    my $change_question = 0;
-    my $correct = 0;
-    while(!$change_question) {
-	$current_answer = <STDIN>;
-	chomp($current_answer);
-	while($current_answer =~ m/^$/) {
-	    print "You didn't provide an answer : ";
-	    $current_answer = <STDIN>;
-	    chomp($current_answer);
+while(1) {
+    process($state);
+    $response = get_user_response();
+    $state = update_state($state, $response);
+}
+
+sub process {
+    switch($state) {
+	case('begin') {
+	    print "Starting new round\n\n";
+	    print "Type 'skip' as answer to skip any question.\nType 'quit' to exit at any point of time.\n\n";
+	    print "Please enter your username (alphanumeric with no spaces) : ";
+
+	} 
+	case('got_name') {
+	    print "Hi ".$uname."! ";
+	    print "Your current score is (".$user->get_user_stats($uname).")\n\n";
+	    print $qa->get_question()." :  ";
+	    $state = 'waiting_for_answer';
+	}
+	case('invalid_name') {
+	    print "Invalid response, please enter again: ";
+	} 
+
+	case('answered_na') {
+	    print "Thanks for your answer, we don't have an answer in system\n\n";
+	    print_user_answers();
+
+	    print "Current score: ".$user->get_user_stats($uname)."\n\n";
+	    print $qa->get_question()." : ";
+	    $state = 'waiting_for_answer';
+	} 
+
+	case('answered_true') {
+	    print "Correct!\n";
+	    print "Current score: ".$user->get_user_stats($uname)."\n\n";
+	    print $qa->get_question()." : ";
+	    $state = 'waiting_for_answer';
+	}
+	
+	case('answered_false') {
+	    print "Incorrect\n\n";
+	    print_user_answers();
+	    print "Try this question again? [y/n] : ";
+	    $state = 'retry';
 	}
 
-	last if($current_answer eq "skip" || $current_answer eq "quit");
-
-	$acount++; # increment attempated questions
-
-	my $result = check_answer($qid, $current_answer);
-	if($result eq "false") {
-	    print "\nIncorrect. ";
-	    update_user_answers($qid, $uname, $current_answer, 0);
-	    my $user_answers = get_user_answers($qid);
-	    my $next_string = ($user_answers eq "") ? "\nThere are no other user responses at this time.\n" : "\n\nOther people have answered : \n".get_user_answers($qid)."\n"; 
-	    print $next_string;
-	    print "\nTry this question again? (y/n) : ";
-	    my $response = <STDIN>;
-	    chomp($response);
-
-	    while(!($response =~ m/^(y|n|quit)$/i)) {
-		print "\nPlease type y, n or quit : ";
-		$response = <STDIN>;
-		chomp($response);
+	case('skip') {
+	    if($qa->has_answer) {
+		print "Correct answers are ".$qa->get_answer()."\n";
+	    } else {
+		print "We don't have a correct answer in our system.\n\n";
+		print_user_answers();
 	    }
 
-	    if($response eq "quit" || $response eq "n"){
-		$system_response = $response;
-		last;
-	    } 
-
-#	    if (!($response eq "y")) {
-#		print "\nCorrect answers are : ";
-#		print_correct_answers($qid);
-#		last;
-#	    }
+	    print "Current score: ".$user->get_user_stats($uname)."\n\n";
+	    print $qa->get_question()." : ";
+	    $state = 'waiting_for_answer';
 	}
 
-	elsif($result eq "na") {
-	    update_user_answers($qid, $uname, $current_answer, 0);
-	    print "\nThanks for your answer. We currently don't have a correct answer for this in our system.";
-	    my $user_answers = get_user_answers($qid);
-	    my $next_string = ($user_answers eq "") ? "\n\nThere are no other user responses at this time." : "\n\nOther people have answered : \n".get_user_answers($qid); 
-	    print $next_string;
-	    last;
+	case('quit_with_answer') {
+	    if($qa->has_answer) {
+		print "Correct answers are ".$qa->get_answer()."\n";
+	    } else {
+		print "We don't have a correct answer in our system.\n";
+		print_user_answers();
+	    }
+	    print "Bye!";
+	    exit;
 	}
-	elsif($result eq "true") {
-	    $ccount++;
-	    print "\nCorrect!";
-	    $correct = 1;
-	    update_user_answers($qid, $uname, $current_answer, 1);
-	    last;
+
+	case('retry_yes') {
+	    $state = 'waiting_for_answer';
 	}
-	print "Enter the new answer here : ";
-    }
 
-#    update_user_answers($qid, $uname, $current_answer, $correct) unless($current_answer eq "skip" || $current_answer eq "quit");
+	case('retry_no') {
+	    if($qa->has_answer) {
+		print "\nCorrect answers are ".$qa->get_answer()."\n";
+	    } else {
+		print "\nWe don't have a correct answer in our system.\n";
+		print_user_answers();
+	    }
 
-    if(($current_answer eq "skip") || ($system_response eq "skip") || ($system_response eq "n")) {
-	print "\nSkipped. " if ($current_answer eq "skip" || $system_response eq "skip");
-	if(exists $answers{$qid}) {
-	    print "\nCorrect answers are: ";
-	    print_correct_answers($qid);
-	} 
-    }
-    print "\n\n**** Current score: Attempted - $acount, Correct - $ccount ****\n";
-    last if ($current_answer eq "quit" || $system_response eq "quit");
-    # print "\nTry another question? (y/n) : ";
-    # my $response = <STDIN>;
-    # chomp($response);
-    # while(!($response =~ m/[yn]/i)) {
-    # 	print "\nYou must answer either y or n : ";
-    # 	my $response = <STDIN>;
-    # 	chomp($response);
-    # }
+	    print "Current score: ".$user->get_user_stats($uname)."\n\n";
+	    print $qa->get_question()." : ";
+	    $state = 'waiting_for_answer';
+	}
 
-    # last if(lc($response) eq "n");
-}
+	case('quit') {
+	    print "Bye!";
+	    exit;
+	}
 
-# if matches tell user and pick next one
-# if does not match and user 
-print "\nBye!\n";
-
-sub print_correct_answers {
-    my $qid = shift;
-    for my $apat (@{$answers{$qid}}) {
-	$apat =~ s/\.\*/ /g;
-	$apat =~ s/\\\-/-/g;
-	$apat =~ s/(\([^\|]*\s*)\|\s*[^\)]*\)/$1/g;
-	$apat =~ s/[\(\)]//g;
-	$apat =~ s/\\s\*//g;
-	$apat =~ s/\?//g;
-	
-	print "'$apat' ";
+	else {
+	    print "error!";
+	    exit;
+	}
     }
 }
 
-sub get_user_answers {
-    my $qid = shift;
-    my $ret_answers = "";
-    return $ret_answers unless exists $user_data{$qid};
-    my $uanswers = $user_data{$qid};
-    while(my ($uid, $answers) = each %$uanswers) {
-	foreach my $a (@$answers) {
-	    $ret_answers .= "\n".$uid.": '".$a."' ";
-	}
-    }
-    return $ret_answers;
-}
 
-sub check_answer {
-    my $qid = shift;
-    my $user_answer = shift;
-    if(!exists $answers{$qid}) {
-	return "na";
-    }
-    my $correct_answers = $answers{$qid};
-    foreach my $ta (@$correct_answers) {
-	return "true" if $user_answer =~ m/$ta/i;
-    }
-    return "false";
-}
-
-sub get_user_name {
-    my $done = 0;
-    print "Hi, please enter your username (alphanumeric with no spaces) : ";
+sub get_user_response {
     my $input = <STDIN>;
     chomp($input);
-    while(!$done) {
-	if($input =~ m/^[a-zA-Z0-9]+$/) {
-	    return $input;
-	} else {
-	    print "Invalid username, please use only alphanumeric characters with no spaces : ";
+    while($input eq "") {
+	print "No input received : ";
+	$input = <STDIN>;
+	chomp($input);
+    }
+
+    if($state eq "retry") {
+	while(!($input =~ m/^[yn]$/i)) {
+	    print "Please enter either y or n : ";
 	    $input = <STDIN>;
 	    chomp($input);
 	}
     }
-}
-sub load_questions {
-    open QFILE, $qfile or die $!;
-    while(<QFILE>) {
-	chomp($_);
-	my ($qid, $qtext) = split(/ ::: /, $_);
-	$questions{$qid} = $qtext;
-    }
-    close QFILE;
+    return $input;
 }
 
-sub load_answers {
-    open AFILE, $afile or die $!;
-    while(<AFILE>) {
-	chomp($_);
-	$_ =~ m/^(\d+)\s+(.*)$/;
-	my $aid = $1;
-	my $apat = $2;
-	$answers{$aid} = [] unless exists $answers{$aid};
-	push(@{$answers{$aid}}, $apat);
-    }
-    close AFILE;
-}
+sub update_state {
+    my $state = shift;
+    my $response = shift;
 
-sub load_user_data {
-    open UFILE, $ufile or die $!;
-    while(<UFILE>) {
-	chomp($_);
-	next if $_ =~ m/^$/;
-	$_ =~ m/^(\d+)\s+([a-zA-Z]+)\s+(.*)\s+[01]$/;
-	my $qid = $1;
-	my $uid = $2;
-	my $answer = $3;
-	
-	$user_data{$qid} = {} unless exists $user_data{$qid};
-	$user_data{$qid}{$uid} = [] unless exists $user_data{$qid}{$uid};
-	push(@{$user_data{$qid}{$uid}}, $answer);
+    $response = lc($response);
+    if($state eq "retry" && $response eq 'y' ) {
+	print "\nPlease enter new answer here: ";
+	return "retry_yes";
+    }
+    if($state eq "retry" && $response eq 'n' ) {
+	return "retry_no";
     }
 
+    if($response eq 'quit') {
+	return ($state eq 'waiting_for_answer') ? 'quit_with_answer' : 'quit';
+    }
+
+    if($state eq 'begin' || $state eq 'invalid_name') {
+	if($response =~ m/^[a-zA-Z0-9]+$/) {
+	    $uname = $response;
+	    return "got_name";
+	} else {
+	    return "invalid_name";
+	}
+    }
+
+    if($state eq 'waiting_for_answer') {
+	if($response eq 'skip') {
+	    return $response;
+	} else {
+	    my $result = $qa->check_answer($response);
+
+	    if($result eq "na") {
+		$user->record_user_answer($uname, $qa->get_qid(), $response, 0);
+		return "answered_na";
+	    } elsif($result eq "true") {
+		$user->record_user_answer($uname, $qa->get_qid(), $response, 1);
+		$user->update_scores($uname, 1);
+		return "answered_true";
+	    } elsif($result eq "false") {
+		$user->record_user_answer($uname, $qa->get_qid(), $response, 0);
+		$user->update_scores($uname, 0);
+		return "answered_false";
+	    }
+	}
+    }
 }
 
-sub update_user_answers {
-    my $qid = shift;
-    my $uid = shift;
-    my $answer = shift;
-    my $correct = shift;
-    
-    my $str = "$qid $uid $answer $correct";
-    `echo "$str" >> $ufile`;
-}
-
-sub quit {
-
-}
-
-sub update_user_data {
-    
+sub print_user_answers {
+    my $answers = $user->get_user_answers($qa->get_qid);
+    if($answers ne "") {
+	print "Other people have answered:".$answers."\n";
+    } else {
+	print "There are no user responses available at this time\n";
+    }
 }
