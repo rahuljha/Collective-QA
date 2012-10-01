@@ -57,7 +57,13 @@ sub get_user_answers {
 	    $ret_answers .= "\n".$uid.": '".$a."' ";
 	}
     }
-    return $ret_answers."\n";
+    return $ret_answers;
+}
+
+sub has_user_answers {
+    my $self = shift;
+    my $qid = shift;
+    return exists $user_data{$qid};
 }
 
 sub record_user_answer {

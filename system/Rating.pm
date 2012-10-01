@@ -104,6 +104,34 @@ sub print_rating_data {
     }
 }
 
+sub update_rating {
+    my $self = shift;
+    my $qid = shift;
+    my $aid = shift;
+    my $score = shift;
+
+    my $found = 0;
+
+    foreach my $astr (keys %{$answer_data{$qid}}) {
+	my $cur_aid = $answer_data{$qid}{$astr}{id};
+	if($cur_aid eq $aid) {
+	    $found = 1;
+	    if($score eq "1") {
+		++$rating_data{$qid}{$astr};
+		my $str = "$qid $astr 1";
+		`echo "$str" >> $rfile`;
+		
+	    } else {
+		--$rating_data{$qid}{$astr};
+		my $str = "$qid $astr -1";
+		`echo "$str" >> $rfile`;
+	    }
+	}
+    }
+
+    return $found;
+}
+
 sub norm_string {
     my $str = shift;
     $str = lc($str);
