@@ -73,7 +73,7 @@ sub load_rating_data {
 	my ($qid, $astr, $rating) = split(/ ::: /, $_);
 	$rating_data{$qid} = {} unless exists $rating_data{$qid};
 	$rating_data{$qid}{$astr} = 0 unless exists $rating_data{$qid}{$astr};
-	++$rating_data{$qid}{$astr};
+	$rating_data{$qid}{$astr} += $rating; 
     }
 }
 
@@ -118,12 +118,12 @@ sub update_rating {
 	    $found = 1;
 	    if($score eq "1") {
 		++$rating_data{$qid}{$astr};
-		my $str = "$qid $astr 1";
+		my $str = "$qid ::: $astr ::: 1";
 		`echo "$str" >> $rfile`;
 		
 	    } else {
 		--$rating_data{$qid}{$astr};
-		my $str = "$qid $astr -1";
+		my $str = "$qid ::: $astr ::: -1";
 		`echo "$str" >> $rfile`;
 	    }
 	}

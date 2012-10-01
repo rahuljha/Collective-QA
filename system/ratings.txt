@@ -3,33 +3,42 @@
 1158 ::: 17 ::: -1
 1158 ::: 19 ::: 1
 1158 ::: 23 ::: 1
-1036 washington dc 1
-1036 college park md 1
-1036 college park md -1
-1036 college park md -1
-1036 college park md 1
-1147 copper 1
-997 famous jazz musician 1
-1329 fear of heights 1
-1329 the loss of one's sense of balance 1
-1329 the loss of one's sense of balance -1
-1329 the loss of one's sense of balance -1
-1110 table salt 1
-1110 table salt -1
-1102 heartbeat 1
-1102 heartbeat -1
-1134 cognac 1
-895 orange -1
-895 orange 1
-895 orange 1
-895 orange 1
-1232 a constellation also known as the big dipper 1
-1232 big dipper 1
-1232 n -1
-1077 a technique for encoding and decoding text using a code 1
-1077 encoding messages 1
-1077 encoding messages -1
-1077 encoding messages -1
-1077 encoding messages -1
-1111 pips 1
-1162 2 years 1
+1036 ::: washington dc ::: 1
+1036 ::: college park md ::: 1
+1036 ::: college park md ::: -1
+1036 ::: college park md ::: -1
+1036 ::: college park md ::: 1
+1147 ::: copper ::: 1
+997 ::: famous jazz musician ::: 1
+1329 ::: fear of heights ::: 1
+1329 ::: the loss of one's sense of balance ::: 1
+1329 ::: the loss of one's sense of balance ::: -1
+1329 ::: the loss of one's sense of balance ::: -1
+1110 ::: table salt ::: 1
+1110 ::: table salt ::: -1
+1102 ::: heartbeat ::: 1
+1102 ::: heartbeat ::: -1
+1134 ::: cognac ::: 1
+895 ::: orange ::: -1
+895 ::: orange ::: 1
+895 ::: orange ::: 1
+895 ::: orange ::: 1
+1232 ::: a constellation also known as the big dipper ::: 1
+1232 ::: big dipper ::: 1
+1232 ::: n ::: -1
+1077 ::: a technique for encoding and decoding text using a code ::: 1
+1077 ::: encoding messages ::: 1
+1077 ::: encoding messages ::: -1
+1077 ::: encoding messages ::: -1
+1077 ::: encoding messages ::: -1
+1077 ::: encoding messages ::: 1
+1111 ::: pips ::: 1
+1162 ::: 2 years ::: 1
+1023 ::: 3 monts ::: 1
+1292 ::: 80 ::: -1
+1074 ::: indian ocean ::: -1
+1074 ::: pacific ::: -1
+1000 ::: 1 million degrees ::: -1
+1000 ::: 1226 ::: -1
+1113 ::: the flu ::: 1
+1267 ::: infection ::: -1

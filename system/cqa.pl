@@ -14,6 +14,8 @@ my $qa = new QA();
 my $user = new User();
 my $rating = new Rating();
 
+$rating->print_rating_data(1077);
+
 # variables 
 my $uname = "";
 my $response = "";
